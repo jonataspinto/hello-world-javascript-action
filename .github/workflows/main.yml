@@ -29,11 +29,12 @@ jobs:
       #         owner: context.repo.owner,
       #         repo: context.repo.repo,
       #         issue_number: ${{ github.event.number }},
-      #         body: `// ## Code blocks`
+      #         body: ${{ steps.hello.outputs.time }}
       #       });
 
       - name: Create comment
         uses: peter-evans/create-or-update-comment@v2
         with:
-          issue-number: 1
+          token: ${{ secrets.GH_TOKEN }}
+          issue-number: ${{ github.event.number }}
           body: ${{ steps.hello.outputs.time }}
