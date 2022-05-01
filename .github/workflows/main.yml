@@ -17,24 +17,18 @@ jobs:
         with:
           who-to-greet: "value of variable"
       # Use the output from the `hello` step
-      - name: Get the output time
-        run: echo "The time was ${{ steps.hello.outputs.time }}"
+      - name: Test Read result ED
+        id: resultOutput
+        uses: estartandodevs-course/comment-review-on-pr-action@v1.0.0
+      - name: Test Evaluator ED
+        id: evaluator
+        uses: estartandodevs-course/evaluator-action@v1.0.2
+        with:
+          testResults: ${{ steps.resultOutput.outputs.resultOfOutputTests }}
 
-      # - name: "Comment on PR"
-      #   uses: actions/github-script@v5
-      #   with:
-      #     github-token: ${{ secrets.GH_TOKEN }}
-      #     script: |
-      #       await github.rest.issues.createComment({
-      #         owner: context.repo.owner,
-      #         repo: context.repo.repo,
-      #         issue_number: ${{ github.event.number }},
-      #         body: ${{ steps.hello.outputs.time }}
-      #       });
-
-      - name: Create comment
+      - name: Create comment with evaluation result
         uses: peter-evans/create-or-update-comment@v2
         with:
           token: ${{ secrets.GH_TOKEN }}
           issue-number: ${{ github.event.number }}
-          body: ${{ steps.hello.outputs.time }}
+          body: ${{ steps.evaluator.outputs.report }}
