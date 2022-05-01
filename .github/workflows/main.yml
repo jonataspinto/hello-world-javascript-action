@@ -7,17 +7,28 @@ jobs:
     runs-on: ubuntu-latest
     name: A job to say hello
     steps:
-      # To use this repository's private action,
-      # you must check out the repository
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Hello world action step
-        uses: ./ # Uses an action in the root directory
-        id: hello
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
         with:
-          who-to-greet: "value of variable"
-      # Use the output from the `hello` step
-      - name: Test Read result ED
+          node-version: "14.x"
+      - name: Install yarn
+        run: npm install -g yarn
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+      - name: Cache node_modules
+        uses: actions/cache@v2
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Test
+        run: yarn test
+      - name: Read result ED
         id: resultOutput
         uses: estartandodevs-course/capture-test-result-action@v1.0.0
       - name: Test Evaluator ED
